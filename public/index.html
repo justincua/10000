@@ -3,437 +3,769 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
-  <title>EA Mobile Dashboard</title>
+  <title>EA Mobile Dashboard Fixed</title>
   <style>
     :root {
       --bg: #07111f;
-      --card: rgba(255,255,255,0.07);
-      --line: rgba(255,255,255,0.12);
+      --bg-soft: #0d1830;
+      --card: rgba(255,255,255,0.06);
+      --card-strong: rgba(255,255,255,0.09);
+      --line: rgba(255,255,255,0.10);
       --text: #edf3ff;
-      --muted: #8e9fc4;
+      --muted: #90a0c4;
       --green: #18d084;
       --red: #ff6b78;
       --yellow: #ffd166;
       --blue: #77b7ff;
       --cyan: #59e0ff;
-      --shadow: 0 20px 50px rgba(0,0,0,0.35);
-      --radius: 24px;
+      --shadow: 0 18px 42px rgba(0,0,0,0.26);
+      --radius: 22px;
+      --radius-sm: 16px;
     }
 
-    * { box-sizing: border-box; }
-    html, body { height: 100%; margin: 0; overflow: hidden; font-family: Inter, system-ui, sans-serif; }
-
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; }
     body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: var(--text);
-      background: var(--bg);
-      background-image: 
-        radial-gradient(circle at 15% 25%, rgba(24,208,132,0.10), transparent 60%),
-        radial-gradient(circle at 85% 75%, rgba(89,224,255,0.08), transparent 60%);
+      background:
+        radial-gradient(circle at top right, rgba(71,111,255,0.18), transparent 28%),
+        radial-gradient(circle at top left, rgba(24,208,132,0.12), transparent 22%),
+        linear-gradient(180deg, #07111f 0%, #0b1424 100%);
+      overflow-x: hidden;
+    }
+
+    button, input {
+      font: inherit;
+      color: inherit;
     }
 
     .app {
-      height: 100dvh;
-      display: flex;
-      flex-direction: column;
+      width: 100%;
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 12px 12px calc(22px + env(safe-area-inset-bottom));
     }
 
-    /* HEADER */
-    .header {
-      padding: 16px 16px 10px;
-      background: rgba(7,17,31,0.97);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--line);
+    .stack { display: grid; gap: 12px; }
+
+    .hero {
       position: sticky;
       top: 0;
-      z-index: 100;
+      z-index: 30;
+      padding-top: max(10px, env(safe-area-inset-top));
+      background: linear-gradient(180deg, rgba(7,17,31,0.98), rgba(7,17,31,0.88) 78%, rgba(7,17,31,0));
+      backdrop-filter: blur(10px);
+      margin: -12px -12px 0;
+      padding-left: 12px;
+      padding-right: 12px;
+      padding-bottom: 10px;
     }
 
-    .header-top {
+    .hero-card, .bot-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-card {
+      padding: 15px;
+      background:
+        radial-gradient(circle at top right, rgba(89,224,255,0.12), transparent 24%),
+        linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.05));
+    }
+
+    .title-row {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
-      margin-bottom: 12px;
+      gap: 10px;
+      margin-bottom: 10px;
     }
 
-    .header-title {
-      font-size: 23px;
+    .title-wrap h1 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.15;
       font-weight: 900;
-      letter-spacing: -0.5px;
+      letter-spacing: 0.2px;
+    }
+
+    .sub {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+      margin-top: 6px;
     }
 
     .live-badge {
-      display: flex;
+      flex: 0 0 auto;
+      display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 8px 14px;
+      gap: 7px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 900;
       background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 9999px;
-      font-size: 13.5px;
-      font-weight: 800;
+      border: 1px solid rgba(255,255,255,0.10);
+      white-space: nowrap;
     }
 
     .dot {
-      width: 9px;
-      height: 9px;
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
       background: var(--green);
-      border-radius: 50%;
-      box-shadow: 0 0 0 4px rgba(24,208,132,0.25);
-      animation: pulse 2s infinite;
+      box-shadow: 0 0 0 5px rgba(24,208,132,0.18);
     }
-
-    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
 
     .toolbar {
-      display: flex;
-      gap: 10px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
     }
 
-    .input {
-      flex: 1;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 14px 16px;
-      font-size: 15.5px;
-      color: var(--text);
+    .toolbar .input-wrap {
+      grid-column: 1 / -1;
     }
 
-    .input::placeholder { color: #6b7e9f; }
+    .input, .btn {
+      width: 100%;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.05);
+      min-height: 46px;
+      padding: 12px 14px;
+      outline: none;
+    }
+
+    .input::placeholder { color: #7183ab; }
 
     .btn {
-      padding: 13px 18px;
-      border-radius: 18px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.13), rgba(255,255,255,0.06));
-      border: none;
-      color: white;
-      font-weight: 800;
-      font-size: 14px;
       cursor: pointer;
+      font-weight: 900;
+      background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.05));
+      transition: transform .15s ease, filter .15s ease;
     }
 
-    .btn:active { transform: scale(0.96); }
+    .btn:active { transform: scale(0.985); }
+    .btn:hover { filter: brightness(1.05); }
+    .btn-ghost { background: rgba(255,255,255,0.04); }
 
-    /* SUMMARY */
-    .summary-bar {
+    .summary-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 8px;
-      padding: 14px 16px;
-      background: rgba(13,24,48,0.65);
-      border-bottom: 1px solid var(--line);
+      margin-top: 12px;
+    }
+
+    .stat {
+      padding: 12px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      min-width: 0;
     }
 
     .stat .k {
-      font-size: 11.5px;
       color: var(--muted);
+      font-size: 11px;
+      line-height: 1.2;
     }
 
     .stat .v {
-      font-size: 17.5px;
+      font-size: 20px;
       font-weight: 900;
-      margin-top: 4px;
+      margin-top: 7px;
+      line-height: 1.05;
+      word-break: break-word;
     }
 
-    /* BOT LIST */
-    .bot-list {
-      flex: 1;
-      overflow-y: auto;
-      padding: 14px 16px 90px;
+    .good { color: var(--green); }
+    .bad { color: var(--red); }
+    .muted { color: var(--muted); }
+
+    .fixed-note {
+      margin-top: 10px;
       display: flex;
-      flex-direction: column;
-      gap: 16px;
-      scroll-behavior: smooth;
+      gap: 8px;
+      align-items: center;
+      padding: 11px 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .fixed-note .pin {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: var(--cyan);
+      box-shadow: 0 0 0 5px rgba(89,224,255,0.14);
+      flex: 0 0 auto;
+    }
+
+    .bot-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
     }
 
     .bot-card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 18px;
-      box-shadow: var(--shadow);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      position: relative;
-    }
-
-    .bot-card:active {
-      transform: scale(0.985);
+      padding: 14px;
+      overflow: hidden;
+      width: 100%;
     }
 
     .bot-head {
       display: flex;
-      justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 16px;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .bot-main { min-width: 0; }
+
+    .bot-order {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: rgba(89,224,255,0.10);
+      color: var(--cyan);
+      border: 1px solid rgba(89,224,255,0.18);
+      font-size: 11px;
+      font-weight: 900;
+      margin-bottom: 8px;
     }
 
     .bot-name {
-      font-size: 19px;
+      font-size: 18px;
       font-weight: 900;
       line-height: 1.2;
+      word-break: break-word;
     }
 
     .bot-sub {
-      font-size: 13.5px;
+      font-size: 12px;
       color: var(--blue);
       margin-top: 4px;
+      font-weight: 700;
+      word-break: break-word;
+    }
+
+    .badges {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      max-width: 44%;
     }
 
     .badge {
-      padding: 6px 12px;
+      padding: 7px 10px;
       border-radius: 999px;
-      font-size: 12.5px;
-      font-weight: 800;
+      font-size: 11px;
+      font-weight: 900;
+      border: 1px solid rgba(255,255,255,0.10);
+      white-space: nowrap;
     }
 
-    .badge.online { background: rgba(24,208,132,0.2); color: var(--green); }
-    .badge.offline { background: rgba(255,107,120,0.2); color: var(--red); }
-    .badge.status { background: rgba(255,209,102,0.15); color: var(--yellow); }
+    .badge.online {
+      background: rgba(24,208,132,0.15);
+      color: var(--green);
+    }
 
-    .metrics-grid {
+    .badge.offline {
+      background: rgba(255,107,120,0.14);
+      color: var(--red);
+    }
+
+    .badge.status {
+      background: rgba(255,209,102,0.14);
+      color: var(--yellow);
+    }
+
+    .hero-metrics {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      margin: 14px 0;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 12px;
     }
 
     .tile {
-      background: rgba(255,255,255,0.045);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 18px;
-      padding: 12px 14px;
+      padding: 11px 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      min-width: 0;
     }
 
     .tile .label {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--muted);
     }
 
     .tile .value {
-      font-size: 18px;
-      font-weight: 900;
       margin-top: 6px;
+      font-size: 16px;
+      line-height: 1.15;
+      font-weight: 900;
+      word-break: break-word;
     }
 
     .meta-strip {
+      margin-top: 10px;
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      margin-top: 12px;
-      font-size: 13px;
     }
 
     .chip {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.1);
-      padding: 7px 12px;
       border-radius: 999px;
+      padding: 8px 10px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.07);
+      font-size: 11px;
       color: var(--muted);
+      white-space: nowrap;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .actions {
+      margin-top: 12px;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-top: 18px;
+      gap: 8px;
     }
 
     .actions .btn {
-      padding: 14px;
-      font-size: 15px;
+      min-height: 42px;
+      padding: 10px 12px;
+      font-size: 13px;
     }
 
-    /* MODAL FULL SCREEN */
-    .modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(7,17,31,0.98);
-      backdrop-filter: blur(12px);
-      z-index: 2000;
+    .section {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .section-panel {
       display: none;
-      flex-direction: column;
+      overflow: auto;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.12);
     }
 
-    .modal.show { display: flex; }
+    .section-panel.show {
+      display: block;
+    }
 
-    .modal-header {
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--line);
+    .loading-box {
+      padding: 16px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    th, td {
+      padding: 9px 10px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      white-space: nowrap;
+    }
+
+    .month-wrap {
+      display: none;
+      background: transparent;
+      border: 0;
+      overflow: visible;
+    }
+
+    .month-wrap.show {
+      display: block;
+    }
+
+    .month-shell {
+      overflow: hidden;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.12);
+      padding: 10px;
+    }
+
+    .section-title {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
     }
 
-    .modal-title {
-      font-size: 20px;
-      font-weight: 800;
+    .section-title h3 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: 0.2px;
     }
 
-    .modal-close {
-      font-size: 32px;
-      width: 44px;
-      height: 44px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0.8;
-      cursor: pointer;
+    .section-title .mini {
+      font-size: 11px;
+      color: var(--muted);
     }
 
-    .modal-content {
-      flex: 1;
-      overflow-y: auto;
-      padding: 20px;
+    .month-meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 10px;
     }
 
-    /* Calendar */
+    .month-pill {
+      padding: 10px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      min-width: 0;
+    }
+
+    .month-pill .label {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+
+    .month-pill .value {
+      margin-top: 6px;
+      font-size: 14px;
+      line-height: 1.15;
+      font-weight: 900;
+      word-break: break-word;
+    }
+
     .calendar {
       display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 8px;
-      margin-top: 16px;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 5px;
     }
 
     .dow {
       text-align: center;
-      font-size: 12px;
+      font-size: 10px;
       color: var(--muted);
-      font-weight: 700;
-      padding-bottom: 8px;
+      font-weight: 800;
+      padding-bottom: 2px;
+    }
+
+    .day, .day-empty {
+      min-height: 72px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.06);
+      padding: 6px 5px;
     }
 
     .day {
-      min-height: 78px;
-      border-radius: 16px;
-      padding: 8px 6px;
+      background: rgba(255,255,255,0.035);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      border: 1px solid rgba(255,255,255,0.08);
-      background: rgba(255,255,255,0.035);
-      font-size: 13px;
+      gap: 5px;
+    }
+
+    .day-empty {
+      background: rgba(255,255,255,0.018);
+    }
+
+    .day-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      font-size: 10px;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .day-profit {
+      font-size: 11px;
+      font-weight: 900;
+      line-height: 1.08;
+      word-break: break-word;
+    }
+
+    .day-dd {
+      font-size: 10px;
+      color: var(--muted);
+      line-height: 1.08;
+      word-break: break-word;
     }
 
     .day.today {
-      border-color: var(--cyan);
-      box-shadow: 0 0 0 2px rgba(89,224,255,0.35);
+      outline: 1px solid rgba(89,224,255,0.65);
+      box-shadow: inset 0 0 0 1px rgba(89,224,255,0.22);
     }
 
-    .day.positive { background: linear-gradient(180deg, rgba(24,208,132,0.22), rgba(24,208,132,0.06)); }
-    .day.negative { background: linear-gradient(180deg, rgba(255,107,120,0.22), rgba(255,107,120,0.06)); }
+    .day.positive {
+      background: linear-gradient(180deg, rgba(24,208,132,0.14), rgba(24,208,132,0.05));
+    }
 
-    .day-profit {
-      font-weight: 900;
-      font-size: 14.5px;
-      line-height: 1.1;
+    .day.negative {
+      background: linear-gradient(180deg, rgba(255,107,120,0.14), rgba(255,107,120,0.05));
+    }
+
+    .day.flat {
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.03));
+    }
+
+    .legend {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      display: inline-block;
     }
 
     .empty {
-      padding: 60px 20px;
+      padding: 26px 18px;
       text-align: center;
       color: var(--muted);
-      font-size: 15px;
+      border: 1px dashed rgba(255,255,255,0.12);
+      border-radius: 20px;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+      padding-top: 2px;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 380px) {
+      .app { padding-left: 10px; padding-right: 10px; }
+      .hero { margin-left: -10px; margin-right: -10px; padding-left: 10px; padding-right: 10px; }
+      .hero-metrics { grid-template-columns: 1fr 1fr; }
+      .tile .value { font-size: 15px; }
+      .day, .day-empty { min-height: 66px; }
+      .day-profit { font-size: 10px; }
+      .month-meta { grid-template-columns: 1fr; }
+    }
+
+    @media (min-width: 561px) {
+      .app { max-width: 560px; }
     }
   </style>
 </head>
 <body>
-  <div class="app">
-    <!-- HEADER -->
-    <div class="header">
-      <div class="header-top">
-        <div class="header-title">EA Dashboard</div>
-        <div class="live-badge" id="liveBadge">
-          <span class="dot"></span>
-          <span id="liveText">Đang kết nối...</span>
+  <div class="app stack">
+    <div class="hero">
+      <div class="hero-card">
+        <div class="title-row">
+          <div class="title-wrap">
+            <h1>EA Dashboard Mobile</h1>
+            <div class="sub">
+              Bản mobile hoàn toàn. Mỗi bot giữ nguyên vị trí cố định theo lần xuất hiện đầu tiên, không tự đảo chỗ khi cập nhật realtime.
+            </div>
+          </div>
+          <div class="live-badge" id="liveBadge">
+            <span class="dot"></span>
+            <span id="liveText">Đang kết nối...</span>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <div class="input-wrap">
+            <input id="searchInput" class="input" placeholder="Tìm bot / symbol / account" />
+          </div>
+          <button id="refreshBtn" class="btn">Làm mới</button>
+          <button id="todayBtn" class="btn btn-ghost">Hôm nay</button>
+        </div>
+
+        <div class="summary-grid">
+          <div class="stat"><div class="k">Tổng bot</div><div class="v" id="sumTotal">0</div></div>
+          <div class="stat"><div class="k">Online</div><div class="v" id="sumOnline">0</div></div>
+          <div class="stat"><div class="k">Lãi thực</div><div class="v" id="sumProfit">0</div></div>
+          <div class="stat"><div class="k">Floating</div><div class="v" id="sumFloating">0</div></div>
+        </div>
+
+        <div class="fixed-note">
+          <span class="pin"></span>
+          <span>Thứ tự bot đã được khóa cố định. Bot cũ đứng yên, bot mới chỉ thêm xuống cuối danh sách.</span>
         </div>
       </div>
-
-      <div class="toolbar">
-        <input id="searchInput" class="input" placeholder="Tìm bot / symbol / account" />
-        <button id="refreshBtn" class="btn">Làm mới</button>
-      </div>
     </div>
 
-    <!-- SUMMARY -->
-    <div class="summary-bar">
-      <div class="stat"><div class="k">Tổng bot</div><div class="v" id="sumTotal">0</div></div>
-      <div class="stat"><div class="k">Online</div><div class="v" id="sumOnline">0</div></div>
-      <div class="stat"><div class="k">Lãi thực</div><div class="v" id="sumProfit">0</div></div>
-      <div class="stat"><div class="k">Floating</div><div class="v" id="sumFloating">0</div></div>
-    </div>
-
-    <!-- BOT LIST -->
     <div id="cards" class="bot-list"></div>
-  </div>
 
-  <!-- MONTH MODAL -->
-  <div id="monthModal" class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="modalTitle">Lịch tháng</div>
-      <div class="modal-close" id="closeModal">×</div>
+    <div class="footer-note">
+      Lịch tháng vẫn hiển thị <b>$</b> và <b>DD%</b> theo ngày. Phần điều khiển CMD vẫn đã bị loại bỏ khỏi giao diện.
     </div>
-    <div class="modal-content" id="modalContent"></div>
   </div>
 
   <script>
-    // ================== YOUR ORIGINAL VARIABLES & FUNCTIONS ==================
     const cardsEl = document.getElementById('cards');
     const searchInput = document.getElementById('searchInput');
     const refreshBtn = document.getElementById('refreshBtn');
+    const todayBtn = document.getElementById('todayBtn');
     const liveText = document.getElementById('liveText');
     const liveBadge = document.getElementById('liveBadge');
 
     const fmt = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
-    const shortFmt = new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 });
+    const shortFmt = new Intl.NumberFormat('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 0 });
+    const DOW = ['CN', '2', '3', '4', '5', '6', '7'];
 
     let rows = [];
     let rowMap = new Map();
     let realtimeStarted = false;
     let pollTimer = null;
-    const monthCache = new Map();
+    let stableCounter = 0;
 
-    const DOW = ['CN', '2', '3', '4', '5', '6', '7'];
+    const monthCache = new Map();
+    const historyCache = new Map();
+    const stableOrder = new Map();
+    const sectionState = new Map();
 
     function escapeHtml(text) {
       return String(text ?? '').replace(/[&<>"']/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch]));
     }
 
-    function num(v) { return Number(v) || 0; }
-    function money(v) { return fmt.format(num(v)); }
-    function shortMoney(v) { const n = num(v); return Math.abs(n) >= 1000 ? shortFmt.format(n) : fmt.format(n); }
-    function pct(v) { return fmt.format(num(v)) + '%'; }
+    function safeId(text) {
+      return String(text ?? '').replace(/[^a-zA-Z0-9_-]/g, '_');
+    }
+
+    function num(v) {
+      const n = Number(v);
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    function money(v) {
+      return fmt.format(num(v));
+    }
+
+    function shortMoney(v) {
+      const n = num(v);
+      if (Math.abs(n) >= 1000) return shortFmt.format(n);
+      return fmt.format(n);
+    }
+
+    function pct(v) {
+      return `${fmt.format(num(v))}%`;
+    }
 
     function ago(sec) {
       const n = Math.max(0, num(sec));
-      if (n < 60) return `${n}s trước`;
-      if (n < 3600) return `${Math.floor(n/60)}m trước`;
-      if (n < 86400) return `${Math.floor(n/3600)}h trước`;
-      return `${Math.floor(n/86400)}d trước`;
+      if (n < 60) return `${Math.floor(n)}s trước`;
+      const m = Math.floor(n / 60);
+      if (m < 60) return `${m}m trước`;
+      const h = Math.floor(m / 60);
+      if (h < 24) return `${h}h trước`;
+      const d = Math.floor(h / 24);
+      return `${d}d trước`;
     }
 
     function signalTag(v) {
       const n = Number(v);
-      if (n === 1) return '<span style="color:var(--green)">BUY</span>';
-      if (n === -1) return '<span style="color:var(--red)">SELL</span>';
-      return '<span style="color:var(--muted)">WAIT</span>';
+      if (n === 1) return '<span class="good">BUY</span>';
+      if (n === -1) return '<span class="bad">SELL</span>';
+      return '<span class="muted">WAIT</span>';
     }
 
-    // ================== API & DATA ==================
-    async function api(url) {
-      const res = await fetch(url);
+    function localDateKey(date) {
+      const d = date instanceof Date ? date : new Date(date);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function parseDateKey(raw, yearHint, monthHint) {
+      if (raw == null || raw === '') return null;
+      if (typeof raw === 'number' && Number.isFinite(raw)) {
+        const ms = raw > 1e12 ? raw : raw * 1000;
+        return localDateKey(new Date(ms));
+      }
+      const s = String(raw).trim();
+      if (!s) return null;
+      if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+      if (/^\d{4}\.\d{2}\.\d{2}$/.test(s)) return s.replaceAll('.', '-');
+      if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) {
+        const [dd, mm, yy] = s.split('/');
+        return `${yy}-${mm}-${dd}`;
+      }
+      if (/^\d{1,2}$/.test(s) && yearHint && monthHint) {
+        return `${yearHint}-${String(monthHint).padStart(2, '0')}-${String(Number(s)).padStart(2, '0')}`;
+      }
+      const d = new Date(s);
+      if (!Number.isNaN(d.getTime())) return localDateKey(d);
+      return null;
+    }
+
+    function rowKey(row) {
+      return String(row?.fileName || `${row?.bot || 'bot'}__${row?.symbol || '-'}__${row?.accountId || '-'}`);
+    }
+
+    function getSectionState(key) {
+      if (!sectionState.has(key)) {
+        sectionState.set(key, { historyOpen: false, monthOpen: false });
+      }
+      return sectionState.get(key);
+    }
+
+    function ensureStableOrder(list) {
+      for (const row of list) {
+        const key = rowKey(row);
+        if (!stableOrder.has(key)) {
+          stableOrder.set(key, stableCounter++);
+        }
+      }
+    }
+
+    async function api(url, opts = {}) {
+      const res = await fetch(url, { ...opts });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     }
 
     async function loadOverview() {
-      try {
-        const data = await api('/api/overview');
-        rows = Array.isArray(data.rows) ? data.rows : [];
-        rowMap = new Map(rows.map(r => [String(r.fileName), r]));
-        render();
-      } catch (e) {
-        console.error(e);
-      }
+      const data = await api('/api/overview');
+      const incoming = Array.isArray(data.rows) ? data.rows : [];
+      ensureStableOrder(incoming);
+      rows = incoming.slice().sort((a, b) => stableOrder.get(rowKey(a)) - stableOrder.get(rowKey(b)));
+      rowMap = new Map(rows.map(r => [rowKey(r), r]));
+      render();
     }
 
     function renderSummary(filtered) {
@@ -441,37 +773,28 @@
       const online = filtered.filter(r => r.isOnline).length;
       const profit = filtered.reduce((s, r) => s + num(r.metrics?.realProfit), 0);
       const floating = filtered.reduce((s, r) => s + num(r.metrics?.floating), 0);
-
       document.getElementById('sumTotal').textContent = total;
       document.getElementById('sumOnline').textContent = online;
       document.getElementById('sumProfit').textContent = money(profit);
       document.getElementById('sumFloating').textContent = money(floating);
+      const badgeDot = liveBadge.querySelector('.dot');
+      if (badgeDot) badgeDot.style.background = online > 0 ? 'var(--green)' : 'var(--red)';
     }
 
-    function sortedFilteredRows() {
+    function filteredRows() {
       const q = searchInput.value.trim().toLowerCase();
-      const filtered = rows.filter(r => {
+      return rows.filter(r => {
         const text = `${r.bot} ${r.symbol} ${r.accountId} ${r.status}`.toLowerCase();
         return !q || text.includes(q);
       });
-
-      // Giữ thứ tự ổn định: ưu tiên lãi cao → tên
-      filtered.sort((a, b) => {
-        const pa = num(a.metrics?.realProfit);
-        const pb = num(b.metrics?.realProfit);
-        if (pb !== pa) return pb - pa;
-        return String(a.bot || '').localeCompare(String(b.bot || ''));
-      });
-      return filtered;
     }
 
-    // ================== RENDER BOT CARDS (Không nhảy vị trí) ==================
     function render() {
-      const filtered = sortedFilteredRows();
+      const filtered = filteredRows();
       renderSummary(filtered);
 
       if (!filtered.length) {
-        cardsEl.innerHTML = `<div class="empty">Chưa có bot nào gửi dữ liệu hôm nay.</div>`;
+        cardsEl.innerHTML = '<div class="empty">Chưa có bot nào gửi dữ liệu hôm nay.</div>';
         return;
       }
 
@@ -479,70 +802,105 @@
         const m = row.metrics || {};
         const p = row.positions || {};
         const s = row.signals || {};
-        const realClass = num(m.realProfit) >= 0 ? 'good' : 'bad';
-        const floatClass = num(m.floating) >= 0 ? 'good' : 'bad';
+        const key = rowKey(row);
+        const fileId = safeId(key);
+        const state = getSectionState(key);
+        const orderNo = (stableOrder.get(key) ?? 0) + 1;
         const ddClass = num(m.dd) > 0 ? 'bad' : '';
+        const realClass = num(m.realProfit) >= 0 ? 'good' : 'bad';
+        const floatingClass = num(m.floating) >= 0 ? 'good' : 'bad';
+        const historyHtml = historyCache.get(key) || '';
+        const monthHtml = monthCache.get(key) || '';
 
         return `
-          <div class="bot-card" data-filename="${escapeHtml(row.fileName)}">
+          <article class="bot-card" data-row-key="${escapeHtml(key)}">
             <div class="bot-head">
-              <div>
+              <div class="bot-main">
+                <div class="bot-order">Vị trí cố định #${orderNo}</div>
                 <div class="bot-name">${escapeHtml(row.bot || 'Bot')}</div>
                 <div class="bot-sub">${escapeHtml(row.symbol || '-')} · ID ${escapeHtml(row.accountId || '-')}</div>
               </div>
-              <div>
-                <span class="badge ${row.isOnline ? 'online' : 'offline'}">${row.isOnline ? 'ONLINE' : 'OFFLINE'}</span>
+              <div class="badges">
+                <span class="badge ${row.isOnline ? 'online' : 'offline'}">${escapeHtml(row.onlineText || (row.isOnline ? 'ONLINE' : 'OFFLINE'))}</span>
+                <span class="badge status">${escapeHtml(row.status || 'UNKNOWN')}</span>
               </div>
             </div>
 
-            <div class="metrics-grid">
+            <div class="hero-metrics">
               <div class="tile"><div class="label">Balance</div><div class="value">${money(m.balance)}</div></div>
               <div class="tile"><div class="label">Equity</div><div class="value">${money(m.equity)}</div></div>
               <div class="tile"><div class="label">Lãi thực</div><div class="value ${realClass}">${money(m.realProfit)}</div></div>
               <div class="tile"><div class="label">DD</div><div class="value ${ddClass}">${pct(m.dd)}</div></div>
-              <div class="tile"><div class="label">Floating</div><div class="value ${floatClass}">${money(m.floating)}</div></div>
+              <div class="tile"><div class="label">Floating</div><div class="value ${floatingClass}">${money(m.floating)}</div></div>
               <div class="tile"><div class="label">Mục tiêu còn lại</div><div class="value">${money(m.remain)}</div></div>
+              <div class="tile"><div class="label">Lệnh</div><div class="value">${num(p.total)}</div></div>
+              <div class="tile"><div class="label">Tín hiệu</div><div class="value">M5 ${signalTag(s.m5)} · M1 ${signalTag(s.m1)}</div></div>
             </div>
 
             <div class="meta-strip">
-              <div class="chip">Lệnh: ${num(p.total)} (B:${num(p.buy)} S:${num(p.sell)})</div>
-              <div class="chip">M5 ${signalTag(s.m5)} • M1 ${signalTag(s.m1)}</div>
+              <div class="chip">BUY ${num(p.buy)} · SELL ${num(p.sell)}</div>
+              <div class="chip">All ${signalTag(s.all)}</div>
               <div class="chip">Cập nhật ${ago(row.ageSec)}</div>
             </div>
 
-            <div class="actions">
-              <button class="btn" data-action="history">Xem heartbeat</button>
-              <button class="btn" data-action="month">Xem lịch tháng</button>
+            <div class="meta-strip">
+              <div class="chip">Action: ${escapeHtml(row.action || '-')}</div>
+              <div class="chip">Hedge: ${escapeHtml(row.hedge || '-')}</div>
+              <div class="chip">File: ${escapeHtml(row.fileName || '-')}</div>
             </div>
-          </div>`;
+
+            <div class="actions">
+              <button class="btn btn-ghost" data-toggle-history="${escapeHtml(key)}">Xem heartbeat</button>
+              <button class="btn" data-toggle-month="${escapeHtml(key)}">Xem lịch tháng</button>
+            </div>
+
+            <div class="section">
+              <div class="section-panel ${state.historyOpen ? 'show' : ''}" id="history-${fileId}">${historyHtml || (state.historyOpen ? '<div class="loading-box">Đang tải heartbeat...</div>' : '')}</div>
+              <div class="month-wrap ${state.monthOpen ? 'show' : ''}" id="month-${fileId}">${monthHtml || (state.monthOpen ? '<div class="month-shell"><div class="loading-box">Đang tải lịch tháng...</div></div>' : '')}</div>
+            </div>
+          </article>`;
       }).join('');
     }
 
-    // ================== MONTH MODAL (Full Screen) ==================
-    async function showMonth(fileName) {
-      const modal = document.getElementById('monthModal');
-      const content = document.getElementById('modalContent');
-      const title = document.getElementById('modalTitle');
-
-      const row = rowMap.get(fileName);
-      if (row) title.textContent = `${row.bot || 'Bot'} - Lịch tháng`;
-
-      content.innerHTML = `<div class="empty">Đang tải lịch tháng...</div>`;
-      modal.classList.add('show');
-
-      try {
-        const payload = await api(`/api/file/${encodeURIComponent(fileName)}`);
-        const viewDate = new Date();
-        const monthMap = normalizeMonthMap(payload, row, viewDate);   // dùng hàm cũ của bạn
-        const built = buildCalendarHtml(monthMap, viewDate);         // dùng hàm cũ của bạn
-
-        content.innerHTML = built.html;
-      } catch (e) {
-        content.innerHTML = `<div class="empty">Không tải được lịch tháng: ${escapeHtml(e.message)}</div>`;
-      }
+    function setPanelHtml(type, key, html) {
+      const id = `${type}-${safeId(key)}`;
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = html;
     }
 
-    // ================== YOUR ORIGINAL MONTH FUNCTIONS (giữ nguyên) ==================
+    async function ensureHistory(key) {
+      const row = rowMap.get(key);
+      if (!row) return;
+      historyCache.set(key, '<div class="loading-box">Đang tải heartbeat...</div>');
+      setPanelHtml('history', key, historyCache.get(key));
+
+      const data = await api(`/api/file/${encodeURIComponent(row.fileName)}`);
+      const hist = Array.isArray(data.history) ? data.history.slice(-20).reverse() : [];
+
+      if (!hist.length) {
+        historyCache.set(key, '<div class="empty">Chưa có heartbeat gần đây.</div>');
+        setPanelHtml('history', key, historyCache.get(key));
+        return;
+      }
+
+      const html = `
+        <table>
+          <thead><tr><th>Giờ</th><th>$</th><th>Floating</th><th>DD</th><th>Lệnh</th></tr></thead>
+          <tbody>
+            ${hist.map(h => `
+              <tr>
+                <td>${new Date((Number(h.ts || 0) > 1e12 ? Number(h.ts || 0) : Number(h.ts || 0) * 1000)).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</td>
+                <td class="${num(h.realProfit) >= 0 ? 'good' : 'bad'}">${money(h.realProfit)}</td>
+                <td class="${num(h.floating) >= 0 ? 'good' : 'bad'}">${money(h.floating)}</td>
+                <td>${pct(h.dd)}</td>
+                <td>${num(h.total)}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>`;
+      historyCache.set(key, html);
+      setPanelHtml('history', key, html);
+    }
+
     function collectMonthSources(payload, row) {
       const list = [
         payload?.monthCalendar, payload?.month_calendar, payload?.calendar, payload?.month, payload?.days, payload?.daily,
@@ -560,76 +918,220 @@
       for (const src of collectMonthSources(payload, row)) {
         if (Array.isArray(src)) {
           for (const item of src) {
-            const dateKey = parseDateKey(item?.date ?? item?.day ?? item?.d ?? item?.ts, year, month);
+            const dateKey = parseDateKey(item?.date ?? item?.day ?? item?.d ?? item?.ts ?? item?.timestamp, year, month);
             if (!dateKey) continue;
-            const profit = num(item?.profit ?? item?.realProfit ?? item?.pnl);
-            const dd = num(item?.dd ?? item?.drawdown);
+            const profit = num(item?.profit ?? item?.realProfit ?? item?.pnl ?? item?.usd ?? item?.value ?? item?.closed ?? item?.totalPnl ?? item?.total_profit ?? item?.total);
+            const dd = num(item?.dd ?? item?.drawdown ?? item?.drawdownPct ?? item?.ddPercent ?? item?.maxDD ?? item?.mxdd);
             result.set(dateKey, { profit, dd });
           }
         } else if (src && typeof src === 'object') {
-          for (const [key, value] of Object.entries(src)) {
-            const dateKey = parseDateKey(key, year, month);
+          for (const [rawKey, value] of Object.entries(src)) {
+            const dateKey = parseDateKey(rawKey, year, month) || parseDateKey(value?.date ?? value?.day ?? value?.d, year, month);
             if (!dateKey) continue;
-            const profit = num(value?.profit ?? value?.realProfit ?? value?.pnl);
-            const dd = num(value?.dd ?? value?.drawdown);
-            result.set(dateKey, { profit, dd });
+            if (value && typeof value === 'object') {
+              const profit = num(value?.profit ?? value?.realProfit ?? value?.pnl ?? value?.usd ?? value?.value ?? value?.closed ?? value?.totalPnl ?? value?.total_profit ?? value?.total);
+              const dd = num(value?.dd ?? value?.drawdown ?? value?.drawdownPct ?? value?.ddPercent ?? value?.maxDD ?? value?.mxdd);
+              result.set(dateKey, { profit, dd });
+            } else {
+              result.set(dateKey, { profit: num(value), dd: 0 });
+            }
           }
         }
       }
+
+      if (!result.size && Array.isArray(payload?.history)) {
+        const grouped = new Map();
+        for (const h of payload.history) {
+          const rawTs = Number(h?.ts ?? h?.timestamp ?? 0);
+          if (!rawTs) continue;
+          const ms = rawTs > 1e12 ? rawTs : rawTs * 1000;
+          const d = new Date(ms);
+          const mapKey = localDateKey(d);
+          grouped.set(mapKey, h);
+        }
+        for (const [mapKey, h] of grouped.entries()) {
+          result.set(mapKey, {
+            profit: num(h?.realProfit ?? h?.profit ?? h?.pnl ?? h?.totalPnl),
+            dd: num(h?.dd ?? h?.drawdown ?? h?.ddPercent)
+          });
+        }
+      }
+
       return result;
     }
 
-    function parseDateKey(raw, yearHint, monthHint) {
-      if (!raw) return null;
-      // ... (giữ nguyên hàm parseDateKey cũ của bạn)
-      if (typeof raw === 'number') {
-        const d = new Date(raw > 1e12 ? raw : raw * 1000);
-        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-      }
-      const s = String(raw).trim();
-      if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
-      return null;
-    }
-
     function buildCalendarHtml(monthMap, viewDate) {
-      // ... (giữ nguyên hàm buildCalendarHtml cũ của bạn - bạn có thể paste lại đầy đủ nếu muốn)
-      // Vì code cũ khá dài, ở đây mình để placeholder. Bạn có thể thay bằng hàm cũ của mình.
-      const html = `
-        <div style="text-align:center; font-size:18px; margin-bottom:16px;">${viewDate.toLocaleDateString('vi-VN', {month:'long', year:'numeric'})}</div>
-        <div class="calendar">
-          ${DOW.map(d => `<div class="dow">${d}</div>`).join('')}
-          <!-- Ngày sẽ được render đầy đủ nếu bạn paste hàm cũ -->
+      const year = viewDate.getFullYear();
+      const month = viewDate.getMonth();
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const totalDays = lastDay.getDate();
+      const startOffset = firstDay.getDay();
+      const todayKey = localDateKey(new Date());
+      let positiveDays = 0;
+      let negativeDays = 0;
+      let monthProfit = 0;
+      let maxDD = 0;
+
+      const cells = [];
+      for (let i = 0; i < startOffset; i++) {
+        cells.push('<div class="day-empty"></div>');
+      }
+
+      for (let day = 1; day <= totalDays; day++) {
+        const key = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const entry = monthMap.get(key) || { profit: 0, dd: 0 };
+        const profit = num(entry.profit);
+        const dd = num(entry.dd);
+        monthProfit += profit;
+        if (dd > maxDD) maxDD = dd;
+        if (profit > 0) positiveDays += 1;
+        if (profit < 0) negativeDays += 1;
+
+        let cls = 'flat';
+        if (profit > 0) cls = 'positive';
+        if (profit < 0) cls = 'negative';
+        if (key === todayKey) cls += ' today';
+
+        cells.push(`
+          <div class="day ${cls}">
+            <div class="day-head">
+              <span>${day}</span>
+              <span>${profit !== 0 ? (profit > 0 ? '+' : '') : ''}</span>
+            </div>
+            <div class="day-profit ${profit >= 0 ? 'good' : 'bad'}">${profit === 0 ? '0.00$' : `${profit > 0 ? '+' : ''}${shortMoney(profit)}$`}</div>
+            <div class="day-dd">DD ${fmt.format(dd)}%</div>
+          </div>`);
+      }
+
+      const monthLabel = viewDate.toLocaleDateString('vi-VN', { month: 'long', year: 'numeric' });
+
+      return `
+        <div class="month-shell">
+          <div class="section-title">
+            <h3>${escapeHtml(monthLabel)}</h3>
+            <div class="mini">Hiển thị $ và DD mỗi ngày</div>
+          </div>
+          <div class="month-meta">
+            <div class="month-pill"><div class="label">Tổng tháng</div><div class="value ${monthProfit >= 0 ? 'good' : 'bad'}">${money(monthProfit)}$</div></div>
+            <div class="month-pill"><div class="label">Ngày xanh / đỏ</div><div class="value">${positiveDays} / ${negativeDays}</div></div>
+            <div class="month-pill"><div class="label">DD cao nhất</div><div class="value ${maxDD > 0 ? 'bad' : ''}">${fmt.format(maxDD)}%</div></div>
+          </div>
+          <div class="calendar">
+            ${DOW.map(d => `<div class="dow">${d}</div>`).join('')}
+            ${cells.join('')}
+          </div>
+          <div class="legend">
+            <span><i class="swatch" style="background: rgba(24,208,132,0.85)"></i>Lãi</span>
+            <span><i class="swatch" style="background: rgba(255,107,120,0.85)"></i>Lỗ</span>
+            <span><i class="swatch" style="background: rgba(89,224,255,0.85)"></i>Hôm nay</span>
+          </div>
         </div>`;
-      return { html: `<div style="padding:20px;">${html}</div>` };
     }
 
-    // ================== EVENT LISTENERS ==================
-    cardsEl.addEventListener('click', async (e) => {
-      const card = e.target.closest('.bot-card');
-      if (!card) return;
-      const fileName = card.dataset.filename;
+    async function ensureMonth(key) {
+      const row = rowMap.get(key);
+      if (!row) return;
+      monthCache.set(key, '<div class="month-shell"><div class="loading-box">Đang tải lịch tháng...</div></div>');
+      setPanelHtml('month', key, monthCache.get(key));
 
-      if (e.target.dataset.action === 'month') {
-        await showMonth(fileName);
+      const viewDate = new Date();
+      let payload = {};
+      try {
+        payload = await api(`/api/file/${encodeURIComponent(row.fileName)}`);
+      } catch (e) {
+        payload = {};
       }
-      // Bạn có thể thêm xử lý history nếu cần
+
+      const monthMap = normalizeMonthMap(payload, row, viewDate);
+      const html = buildCalendarHtml(monthMap, viewDate);
+      monthCache.set(key, html);
+      setPanelHtml('month', key, html);
+    }
+
+    function updateLiveText(message, isError = false) {
+      liveText.textContent = message;
+      const badgeDot = liveBadge.querySelector('.dot');
+      if (badgeDot) badgeDot.style.background = isError ? 'var(--red)' : 'var(--green)';
+    }
+
+    function initSSE() {
+      if (realtimeStarted) return;
+      realtimeStarted = true;
+      const es = new EventSource('/events');
+      es.addEventListener('ready', () => updateLiveText('Realtime đang hoạt động'));
+      es.addEventListener('heartbeat', async () => {
+        updateLiveText('Vừa nhận heartbeat mới');
+        await loadOverview();
+      });
+      es.addEventListener('ack', async () => {
+        updateLiveText('Đã nhận cập nhật mới');
+        await loadOverview();
+      });
+      es.onerror = () => {
+        updateLiveText('Mất realtime, đang poll 3 giây', true);
+      };
+
+      if (pollTimer) clearInterval(pollTimer);
+      pollTimer = setInterval(loadOverview, 3000);
+    }
+
+    cardsEl.addEventListener('click', async (event) => {
+      const historyBtn = event.target.closest('[data-toggle-history]');
+      if (historyBtn) {
+        const key = historyBtn.getAttribute('data-toggle-history');
+        const state = getSectionState(key);
+        state.monthOpen = false;
+        state.historyOpen = !state.historyOpen;
+        render();
+        if (state.historyOpen) {
+          try {
+            await ensureHistory(key);
+          } catch (e) {
+            const html = `<div class="empty">Không tải được heartbeat: ${escapeHtml(e.message)}</div>`;
+            historyCache.set(key, html);
+            setPanelHtml('history', key, html);
+          }
+        }
+        return;
+      }
+
+      const monthBtn = event.target.closest('[data-toggle-month]');
+      if (monthBtn) {
+        const key = monthBtn.getAttribute('data-toggle-month');
+        const state = getSectionState(key);
+        state.historyOpen = false;
+        state.monthOpen = !state.monthOpen;
+        render();
+        if (state.monthOpen) {
+          try {
+            await ensureMonth(key);
+          } catch (e) {
+            const html = `<div class="month-shell"><div class="empty">Không tải được lịch tháng: ${escapeHtml(e.message)}</div></div>`;
+            monthCache.set(key, html);
+            setPanelHtml('month', key, html);
+          }
+        }
+      }
     });
 
-    document.getElementById('closeModal').addEventListener('click', () => {
-      document.getElementById('monthModal').classList.remove('show');
+    refreshBtn.addEventListener('click', async () => {
+      monthCache.clear();
+      historyCache.clear();
+      await loadOverview();
+    });
+
+    todayBtn.addEventListener('click', async () => {
+      monthCache.clear();
+      await loadOverview();
     });
 
     searchInput.addEventListener('input', render);
-    refreshBtn.addEventListener('click', loadOverview);
 
-    // ================== INIT ==================
-    loadOverview().then(() => {
-      // SSE Realtime
-      const es = new EventSource('/events');
-      es.onmessage = () => loadOverview();
-      es.onerror = () => liveText.textContent = 'Mất kết nối realtime';
-    }).catch(err => {
-      cardsEl.innerHTML = `<div class="empty">Lỗi tải dữ liệu: ${escapeHtml(err.message)}</div>`;
+    loadOverview().then(initSSE).catch((e) => {
+      cardsEl.innerHTML = `<div class="empty">Không tải được dữ liệu: ${escapeHtml(e.message)}</div>`;
+      updateLiveText('Lỗi tải dữ liệu', true);
+      initSSE();
     });
   </script>
 </body>
