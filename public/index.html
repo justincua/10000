@@ -1,39 +1,1058 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Page</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
-        header { background: #4CAF50; color: white; padding: 1rem; text-align: center; }
-        .container { padding: 20px; }
-        .calendar { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
-        .day { border: 1px solid #ccc; padding: 10px; text-align: center; }
-        @media (max-width: 600px) {
-            .container { padding: 10px; }
-            .calendar { grid-template-columns: 1fr; }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <title>EA Mobile Dashboard</title>
+  <style>
+    :root {
+      --bg: #07111f;
+      --bg-soft: #0d1830;
+      --card: rgba(255,255,255,0.06);
+      --card-strong: rgba(255,255,255,0.09);
+      --line: rgba(255,255,255,0.10);
+      --text: #edf3ff;
+      --muted: #90a0c4;
+      --green: #18d084;
+      --red: #ff6b78;
+      --yellow: #ffd166;
+      --blue: #77b7ff;
+      --cyan: #59e0ff;
+      --shadow: 0 18px 42px rgba(0,0,0,0.26);
+      --radius: 22px;
+      --radius-sm: 16px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top right, rgba(71,111,255,0.18), transparent 28%),
+        radial-gradient(circle at top left, rgba(24,208,132,0.12), transparent 22%),
+        linear-gradient(180deg, #07111f 0%, #0b1424 100%);
+    }
+
+    button, input, select {
+      font: inherit;
+      color: inherit;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 12px 12px 26px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .panel, .bot-card, .sheet {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow);
+    }
+
+    .panel {
+      padding: 14px;
+    }
+
+    .hero {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      padding-top: max(10px, env(safe-area-inset-top));
+      background: linear-gradient(180deg, rgba(7,17,31,0.96), rgba(7,17,31,0.82) 75%, rgba(7,17,31,0));
+      backdrop-filter: blur(10px);
+      margin: -12px -12px 0;
+      padding-left: 12px;
+      padding-right: 12px;
+      padding-bottom: 10px;
+    }
+
+    .hero-card {
+      padding: 15px;
+      border-radius: 24px;
+      background:
+        radial-gradient(circle at top right, rgba(89,224,255,0.12), transparent 24%),
+        linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.05));
+      border: 1px solid rgba(255,255,255,0.10);
+      box-shadow: var(--shadow);
+    }
+
+    .title-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .title-wrap h1 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.2;
+      font-weight: 900;
+      letter-spacing: 0.2px;
+    }
+
+    .sub {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+      margin-top: 6px;
+    }
+
+    .live-badge {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.10);
+      white-space: nowrap;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--green);
+      box-shadow: 0 0 0 5px rgba(24,208,132,0.18);
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .input, .btn, .select {
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.05);
+      min-height: 44px;
+      padding: 11px 14px;
+      outline: none;
+    }
+
+    .input::placeholder { color: #7183ab; }
+
+    .btn {
+      cursor: pointer;
+      font-weight: 800;
+      background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.05));
+      transition: transform .15s ease, filter .15s ease;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn:hover { filter: brightness(1.05); }
+
+    .btn-ghost {
+      background: rgba(255,255,255,0.04);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .stat {
+      padding: 12px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .stat .k {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.2;
+    }
+
+    .stat .v {
+      font-size: 20px;
+      font-weight: 900;
+      margin-top: 7px;
+      line-height: 1.05;
+      word-break: break-word;
+    }
+
+    .good { color: var(--green); }
+    .bad { color: var(--red); }
+    .warn { color: var(--yellow); }
+    .muted { color: var(--muted); }
+    .blue { color: var(--blue); }
+
+    .bot-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .bot-card {
+      padding: 14px;
+      overflow: hidden;
+    }
+
+    .bot-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .bot-main {
+      min-width: 0;
+    }
+
+    .bot-name {
+      font-size: 18px;
+      font-weight: 900;
+      line-height: 1.2;
+      word-break: break-word;
+    }
+
+    .bot-sub {
+      font-size: 12px;
+      color: var(--blue);
+      margin-top: 4px;
+      font-weight: 700;
+      word-break: break-word;
+    }
+
+    .badges {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      max-width: 44%;
+    }
+
+    .badge {
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 900;
+      border: 1px solid rgba(255,255,255,0.10);
+      white-space: nowrap;
+    }
+
+    .badge.online {
+      background: rgba(24,208,132,0.15);
+      color: var(--green);
+    }
+
+    .badge.offline {
+      background: rgba(255,107,120,0.14);
+      color: var(--red);
+    }
+
+    .badge.status {
+      background: rgba(255,209,102,0.14);
+      color: var(--yellow);
+    }
+
+    .hero-metrics {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .tile {
+      padding: 11px 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      min-width: 0;
+    }
+
+    .tile .label {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .tile .value {
+      margin-top: 6px;
+      font-size: 16px;
+      line-height: 1.15;
+      font-weight: 900;
+      word-break: break-word;
+    }
+
+    .meta-strip {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      border-radius: 999px;
+      padding: 8px 10px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.07);
+      font-size: 11px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .actions {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .actions .btn {
+      min-height: 42px;
+      padding: 10px 12px;
+      font-size: 13px;
+    }
+
+    .section {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .section-title h3 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: 0.2px;
+    }
+
+    .section-title .mini {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .history {
+      display: none;
+      overflow: auto;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.12);
+    }
+
+    .history.show,
+    .month-wrap.show {
+      display: block;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    th, td {
+      padding: 9px 10px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      white-space: nowrap;
+    }
+
+    .month-wrap {
+      display: none;
+    }
+
+    .month-meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .month-pill {
+      padding: 10px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      min-width: 0;
+    }
+
+    .month-pill .label {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+
+    .month-pill .value {
+      margin-top: 6px;
+      font-size: 14px;
+      line-height: 1.15;
+      font-weight: 900;
+      word-break: break-word;
+    }
+
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .dow {
+      text-align: center;
+      font-size: 10px;
+      color: var(--muted);
+      font-weight: 800;
+      padding-bottom: 2px;
+    }
+
+    .day,
+    .day-empty {
+      min-height: 74px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.06);
+      padding: 7px 6px;
+    }
+
+    .day {
+      background: rgba(255,255,255,0.035);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 5px;
+    }
+
+    .day-empty {
+      background: rgba(255,255,255,0.018);
+    }
+
+    .day-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      font-size: 10px;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .day-profit {
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1.1;
+      word-break: break-word;
+    }
+
+    .day-dd {
+      font-size: 10px;
+      color: var(--muted);
+      line-height: 1.1;
+      word-break: break-word;
+    }
+
+    .day.today {
+      outline: 1px solid rgba(89,224,255,0.65);
+      box-shadow: inset 0 0 0 1px rgba(89,224,255,0.22);
+    }
+
+    .day.positive {
+      background: linear-gradient(180deg, rgba(24,208,132,0.14), rgba(24,208,132,0.05));
+    }
+
+    .day.negative {
+      background: linear-gradient(180deg, rgba(255,107,120,0.14), rgba(255,107,120,0.05));
+    }
+
+    .day.flat {
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.03));
+    }
+
+    .legend {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      display: inline-block;
+    }
+
+    .empty {
+      padding: 26px 18px;
+      text-align: center;
+      color: var(--muted);
+      border: 1px dashed rgba(255,255,255,0.12);
+      border-radius: 20px;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+      padding-top: 2px;
+    }
+
+    @media (min-width: 760px) {
+      .app { padding: 16px 16px 30px; }
+      .hero { margin: -16px -16px 0; padding-left: 16px; padding-right: 16px; }
+      .toolbar { grid-template-columns: 1fr auto auto auto; }
+      .summary-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .bot-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .hero-metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    }
+
+    @media (min-width: 1100px) {
+      .bot-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>Monthly Metrics</h1>
-    </header>
-    <div class="container">
-        <div class="calendar">
-            <div class="day">
-                <strong>1</strong><br>
-                Bot1: DD, $<br>
-                Bot2: DD, $<br>
+  <div class="app stack">
+    <div class="hero">
+      <div class="hero-card">
+        <div class="title-row">
+          <div class="title-wrap">
+            <h1>EA Dashboard Mobile</h1>
+            <div class="sub">
+              Bản này chỉ xem dữ liệu realtime, đã bỏ toàn bộ nút CMD trên giao diện để giảm nguy cơ bị lạm dụng từ phía người xem.
             </div>
-            <div class="day">
-                <strong>2</strong><br>
-                Bot1: DD, $<br>
-                Bot2: DD, $<br>
-            </div>
-            <!-- Add further days as needed -->
+          </div>
+          <div class="live-badge" id="liveBadge">
+            <span class="dot"></span>
+            <span id="liveText">Đang kết nối...</span>
+          </div>
         </div>
+
+        <div class="toolbar">
+          <input id="searchInput" class="input" placeholder="Tìm bot / symbol / account" />
+          <select id="sortSelect" class="select" aria-label="Sắp xếp">
+            <option value="updated">Mới nhất</option>
+            <option value="profitDesc">Lãi cao</option>
+            <option value="ddDesc">DD cao</option>
+            <option value="name">Tên bot</option>
+          </select>
+          <button id="refreshBtn" class="btn">Làm mới</button>
+          <button id="todayBtn" class="btn btn-ghost">Hôm nay</button>
+        </div>
+
+        <div class="summary-grid">
+          <div class="stat"><div class="k">Tổng bot</div><div class="v" id="sumTotal">0</div></div>
+          <div class="stat"><div class="k">Online</div><div class="v" id="sumOnline">0</div></div>
+          <div class="stat"><div class="k">Lãi thực</div><div class="v" id="sumProfit">0</div></div>
+          <div class="stat"><div class="k">Floating</div><div class="v" id="sumFloating">0</div></div>
+        </div>
+      </div>
     </div>
+
+    <div id="cards" class="bot-list"></div>
+
+    <div class="footer-note">
+      Ô lịch tháng hiển thị <b>$</b> và <b>DD%</b> theo ngày. Nếu backend chưa trả dữ liệu lịch tháng riêng, giao diện sẽ tự fallback từ heartbeat/history gần nhất.
+    </div>
+  </div>
+
+  <script>
+    const cardsEl = document.getElementById('cards');
+    const searchInput = document.getElementById('searchInput');
+    const sortSelect = document.getElementById('sortSelect');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const todayBtn = document.getElementById('todayBtn');
+    const liveText = document.getElementById('liveText');
+    const liveBadge = document.getElementById('liveBadge');
+
+    const fmt = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+    const shortFmt = new Intl.NumberFormat('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 0 });
+    const DOW = ['CN', '2', '3', '4', '5', '6', '7'];
+
+    let rows = [];
+    let rowMap = new Map();
+    let realtimeStarted = false;
+    let pollTimer = null;
+    const monthCache = new Map();
+
+    function escapeHtml(text) {
+      return String(text ?? '').replace(/[&<>"']/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch]));
+    }
+
+    function safeId(text) {
+      return String(text ?? '').replace(/[^a-zA-Z0-9_-]/g, '_');
+    }
+
+    function num(v) {
+      const n = Number(v);
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    function money(v) {
+      return fmt.format(num(v));
+    }
+
+    function shortMoney(v) {
+      const n = num(v);
+      if (Math.abs(n) >= 1000) return shortFmt.format(n);
+      return fmt.format(n);
+    }
+
+    function pct(v) {
+      return `${fmt.format(num(v))}%`;
+    }
+
+    function ago(sec) {
+      const n = Math.max(0, num(sec));
+      if (n < 60) return `${Math.floor(n)}s trước`;
+      const m = Math.floor(n / 60);
+      if (m < 60) return `${m}m trước`;
+      const h = Math.floor(m / 60);
+      if (h < 24) return `${h}h trước`;
+      const d = Math.floor(h / 24);
+      return `${d}d trước`;
+    }
+
+    function signalTag(v) {
+      const n = Number(v);
+      if (n === 1) return '<span class="good">BUY</span>';
+      if (n === -1) return '<span class="bad">SELL</span>';
+      return '<span class="muted">WAIT</span>';
+    }
+
+    function localDateKey(date) {
+      const d = date instanceof Date ? date : new Date(date);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function parseDateKey(raw, yearHint, monthHint) {
+      if (raw == null || raw === '') return null;
+      if (typeof raw === 'number' && Number.isFinite(raw)) {
+        const ms = raw > 1e12 ? raw : raw * 1000;
+        return localDateKey(new Date(ms));
+      }
+      const s = String(raw).trim();
+      if (!s) return null;
+      if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+      if (/^\d{4}\.\d{2}\.\d{2}$/.test(s)) return s.replaceAll('.', '-');
+      if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) {
+        const [dd, mm, yy] = s.split('/');
+        return `${yy}-${mm}-${dd}`;
+      }
+      if (/^\d{1,2}$/.test(s) && yearHint && monthHint) {
+        return `${yearHint}-${String(monthHint).padStart(2, '0')}-${String(Number(s)).padStart(2, '0')}`;
+      }
+      const d = new Date(s);
+      if (!Number.isNaN(d.getTime())) return localDateKey(d);
+      return null;
+    }
+
+    async function api(url, opts = {}) {
+      const res = await fetch(url, { ...opts });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    }
+
+    async function loadOverview() {
+      const data = await api('/api/overview');
+      rows = Array.isArray(data.rows) ? data.rows : [];
+      rowMap = new Map(rows.map(r => [String(r.fileName), r]));
+      render();
+    }
+
+    function renderSummary(filtered) {
+      const total = filtered.length;
+      const online = filtered.filter(r => r.isOnline).length;
+      const profit = filtered.reduce((s, r) => s + num(r.metrics?.realProfit), 0);
+      const floating = filtered.reduce((s, r) => s + num(r.metrics?.floating), 0);
+      document.getElementById('sumTotal').textContent = total;
+      document.getElementById('sumOnline').textContent = online;
+      document.getElementById('sumProfit').textContent = money(profit);
+      document.getElementById('sumFloating').textContent = money(floating);
+      const badgeDot = liveBadge.querySelector('.dot');
+      if (badgeDot) badgeDot.style.background = online > 0 ? 'var(--green)' : 'var(--red)';
+    }
+
+    function sortedFilteredRows() {
+      const q = searchInput.value.trim().toLowerCase();
+      const sortBy = sortSelect.value;
+      const filtered = rows.filter(r => {
+        const text = `${r.bot} ${r.symbol} ${r.accountId} ${r.status}`.toLowerCase();
+        return !q || text.includes(q);
+      });
+
+      filtered.sort((a, b) => {
+        if (sortBy === 'profitDesc') return num(b.metrics?.realProfit) - num(a.metrics?.realProfit);
+        if (sortBy === 'ddDesc') return num(b.metrics?.dd) - num(a.metrics?.dd);
+        if (sortBy === 'name') return String(a.bot || '').localeCompare(String(b.bot || ''));
+        return num(a.ageSec) - num(b.ageSec);
+      });
+      return filtered;
+    }
+
+    function render() {
+      const filtered = sortedFilteredRows();
+      renderSummary(filtered);
+
+      if (!filtered.length) {
+        cardsEl.innerHTML = '<div class="empty">Chưa có bot nào gửi dữ liệu hôm nay.</div>';
+        return;
+      }
+
+      cardsEl.innerHTML = filtered.map(row => {
+        const m = row.metrics || {};
+        const p = row.positions || {};
+        const s = row.signals || {};
+        const fileId = safeId(row.fileName);
+        const ddClass = num(m.dd) > 0 ? 'bad' : '';
+        const realClass = num(m.realProfit) >= 0 ? 'good' : 'bad';
+        const floatingClass = num(m.floating) >= 0 ? 'good' : 'bad';
+        return `
+          <article class="bot-card">
+            <div class="bot-head">
+              <div class="bot-main">
+                <div class="bot-name">${escapeHtml(row.bot || 'Bot')}</div>
+                <div class="bot-sub">${escapeHtml(row.symbol || '-')} · ID ${escapeHtml(row.accountId || '-')}</div>
+              </div>
+              <div class="badges">
+                <span class="badge ${row.isOnline ? 'online' : 'offline'}">${escapeHtml(row.onlineText || (row.isOnline ? 'ONLINE' : 'OFFLINE'))}</span>
+                <span class="badge status">${escapeHtml(row.status || 'UNKNOWN')}</span>
+              </div>
+            </div>
+
+            <div class="hero-metrics">
+              <div class="tile"><div class="label">Balance</div><div class="value">${money(m.balance)}</div></div>
+              <div class="tile"><div class="label">Equity</div><div class="value">${money(m.equity)}</div></div>
+              <div class="tile"><div class="label">Lãi thực</div><div class="value ${realClass}">${money(m.realProfit)}</div></div>
+              <div class="tile"><div class="label">DD</div><div class="value ${ddClass}">${pct(m.dd)}</div></div>
+              <div class="tile"><div class="label">Floating</div><div class="value ${floatingClass}">${money(m.floating)}</div></div>
+              <div class="tile"><div class="label">Mục tiêu còn lại</div><div class="value">${money(m.remain)}</div></div>
+              <div class="tile"><div class="label">Lệnh</div><div class="value">${num(p.total)}</div></div>
+              <div class="tile"><div class="label">Tín hiệu</div><div class="value">M5 ${signalTag(s.m5)} · M1 ${signalTag(s.m1)}</div></div>
+            </div>
+
+            <div class="meta-strip">
+              <div class="chip">BUY ${num(p.buy)} · SELL ${num(p.sell)}</div>
+              <div class="chip">All ${signalTag(s.all)}</div>
+              <div class="chip">Cập nhật ${ago(row.ageSec)}</div>
+            </div>
+
+            <div class="meta-strip">
+              <div class="chip">Action: ${escapeHtml(row.action || '-')}</div>
+              <div class="chip">Hedge: ${escapeHtml(row.hedge || '-')}</div>
+              <div class="chip">File: ${escapeHtml(row.fileName || '-')}</div>
+            </div>
+
+            <div class="actions">
+              <button class="btn btn-ghost" data-toggle-history="${escapeHtml(row.fileName)}">Xem heartbeat</button>
+              <button class="btn" data-toggle-month="${escapeHtml(row.fileName)}">Xem lịch tháng</button>
+            </div>
+
+            <div class="section">
+              <div class="history" id="history-${fileId}"></div>
+              <div class="month-wrap" id="month-${fileId}"></div>
+            </div>
+          </article>`;
+      }).join('');
+    }
+
+    async function showHistory(fileName) {
+      const data = await api(`/api/file/${encodeURIComponent(fileName)}`);
+      const hist = Array.isArray(data.history) ? data.history.slice(-20).reverse() : [];
+      const target = document.getElementById(`history-${safeId(fileName)}`);
+      if (!target) return;
+      if (!hist.length) {
+        target.innerHTML = '<div class="empty">Chưa có heartbeat gần đây.</div>';
+        target.classList.add('show');
+        return;
+      }
+      target.innerHTML = `
+        <table>
+          <thead><tr><th>Giờ</th><th>$</th><th>Floating</th><th>DD</th><th>Lệnh</th></tr></thead>
+          <tbody>
+            ${hist.map(h => `
+              <tr>
+                <td>${new Date((Number(h.ts || 0) > 1e12 ? Number(h.ts || 0) : Number(h.ts || 0) * 1000)).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</td>
+                <td class="${num(h.realProfit) >= 0 ? 'good' : 'bad'}">${money(h.realProfit)}</td>
+                <td class="${num(h.floating) >= 0 ? 'good' : 'bad'}">${money(h.floating)}</td>
+                <td>${pct(h.dd)}</td>
+                <td>${num(h.total)}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>`;
+      target.classList.add('show');
+    }
+
+    function collectMonthSources(payload, row) {
+      const list = [
+        payload?.monthCalendar, payload?.month_calendar, payload?.calendar, payload?.month, payload?.days, payload?.daily,
+        payload?.monthData, payload?.month_data, payload?.data?.monthCalendar, payload?.data?.calendar,
+        row?.monthCalendar, row?.month_calendar, row?.calendar, row?.month, row?.days, row?.daily,
+      ];
+      return list.filter(Boolean);
+    }
+
+    function normalizeMonthMap(payload, row, viewDate) {
+      const year = viewDate.getFullYear();
+      const month = viewDate.getMonth() + 1;
+      const result = new Map();
+
+      for (const src of collectMonthSources(payload, row)) {
+        if (Array.isArray(src)) {
+          for (const item of src) {
+            const dateKey = parseDateKey(item?.date ?? item?.day ?? item?.d ?? item?.ts ?? item?.timestamp, year, month);
+            if (!dateKey) continue;
+            const profit = num(item?.profit ?? item?.realProfit ?? item?.pnl ?? item?.usd ?? item?.value ?? item?.closed ?? item?.totalPnl ?? item?.total_profit ?? item?.total);
+            const dd = num(item?.dd ?? item?.drawdown ?? item?.drawdownPct ?? item?.ddPercent ?? item?.maxDD ?? item?.mxdd);
+            result.set(dateKey, { profit, dd });
+          }
+        } else if (src && typeof src === 'object') {
+          for (const [key, value] of Object.entries(src)) {
+            const dateKey = parseDateKey(key, year, month) || parseDateKey(value?.date ?? value?.day ?? value?.d, year, month);
+            if (!dateKey) continue;
+            if (value && typeof value === 'object') {
+              const profit = num(value?.profit ?? value?.realProfit ?? value?.pnl ?? value?.usd ?? value?.value ?? value?.closed ?? value?.totalPnl ?? value?.total_profit ?? value?.total);
+              const dd = num(value?.dd ?? value?.drawdown ?? value?.drawdownPct ?? value?.ddPercent ?? value?.maxDD ?? value?.mxdd);
+              result.set(dateKey, { profit, dd });
+            } else {
+              result.set(dateKey, { profit: num(value), dd: 0 });
+            }
+          }
+        }
+      }
+
+      if (!result.size && Array.isArray(payload?.history)) {
+        const grouped = new Map();
+        for (const h of payload.history) {
+          const rawTs = Number(h?.ts ?? h?.timestamp ?? 0);
+          if (!rawTs) continue;
+          const ms = rawTs > 1e12 ? rawTs : rawTs * 1000;
+          const d = new Date(ms);
+          const key = localDateKey(d);
+          grouped.set(key, h);
+        }
+        for (const [key, h] of grouped.entries()) {
+          result.set(key, {
+            profit: num(h?.realProfit ?? h?.profit ?? h?.pnl ?? h?.totalPnl),
+            dd: num(h?.dd ?? h?.drawdown ?? h?.ddPercent)
+          });
+        }
+      }
+
+      return result;
+    }
+
+    function buildCalendarHtml(monthMap, viewDate) {
+      const year = viewDate.getFullYear();
+      const month = viewDate.getMonth();
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const totalDays = lastDay.getDate();
+      const startOffset = firstDay.getDay();
+      const todayKey = localDateKey(new Date());
+      let positiveDays = 0;
+      let negativeDays = 0;
+      let monthProfit = 0;
+      let maxDD = 0;
+
+      const cells = [];
+      for (let i = 0; i < startOffset; i++) {
+        cells.push('<div class="day-empty"></div>');
+      }
+
+      for (let day = 1; day <= totalDays; day++) {
+        const key = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const entry = monthMap.get(key) || { profit: 0, dd: 0 };
+        const profit = num(entry.profit);
+        const dd = num(entry.dd);
+        monthProfit += profit;
+        if (dd > maxDD) maxDD = dd;
+        if (profit > 0) positiveDays += 1;
+        if (profit < 0) negativeDays += 1;
+
+        let cls = 'flat';
+        if (profit > 0) cls = 'positive';
+        if (profit < 0) cls = 'negative';
+        if (key === todayKey) cls += ' today';
+
+        cells.push(`
+          <div class="day ${cls}">
+            <div class="day-head">
+              <span>${day}</span>
+              <span>${profit !== 0 ? (profit > 0 ? '+' : '') : ''}</span>
+            </div>
+            <div class="day-profit ${profit >= 0 ? 'good' : 'bad'}">${profit === 0 ? '0.00$' : `${profit > 0 ? '+' : ''}${shortMoney(profit)}$`}</div>
+            <div class="day-dd">DD ${fmt.format(dd)}%</div>
+          </div>`);
+      }
+
+      const monthLabel = viewDate.toLocaleDateString('vi-VN', { month: 'long', year: 'numeric' });
+
+      return {
+        html: `
+          <div class="section-title">
+            <h3>${escapeHtml(monthLabel)}</h3>
+            <div class="mini">Hiển thị $ và DD mỗi ngày</div>
+          </div>
+          <div class="month-meta">
+            <div class="month-pill"><div class="label">Tổng tháng</div><div class="value ${monthProfit >= 0 ? 'good' : 'bad'}">${money(monthProfit)}$</div></div>
+            <div class="month-pill"><div class="label">Ngày xanh / đỏ</div><div class="value">${positiveDays} / ${negativeDays}</div></div>
+            <div class="month-pill"><div class="label">DD cao nhất</div><div class="value ${maxDD > 0 ? 'bad' : ''}">${fmt.format(maxDD)}%</div></div>
+          </div>
+          <div class="calendar">
+            ${DOW.map(d => `<div class="dow">${d}</div>`).join('')}
+            ${cells.join('')}
+          </div>
+          <div class="legend">
+            <span><i class="swatch" style="background: rgba(24,208,132,0.85)"></i>Lãi</span>
+            <span><i class="swatch" style="background: rgba(255,107,120,0.85)"></i>Lỗ</span>
+            <span><i class="swatch" style="background: rgba(89,224,255,0.85)"></i>Hôm nay</span>
+          </div>`
+      };
+    }
+
+    async function showMonth(fileName) {
+      const box = document.getElementById(`month-${safeId(fileName)}`);
+      const row = rowMap.get(fileName);
+      if (!box || !row) return;
+
+      if (monthCache.has(fileName)) {
+        box.innerHTML = monthCache.get(fileName);
+        box.classList.add('show');
+        return;
+      }
+
+      const viewDate = new Date();
+      let payload = {};
+      try {
+        payload = await api(`/api/file/${encodeURIComponent(fileName)}`);
+      } catch (e) {
+        payload = {};
+      }
+
+      const monthMap = normalizeMonthMap(payload, row, viewDate);
+      const built = buildCalendarHtml(monthMap, viewDate);
+      monthCache.set(fileName, built.html);
+      box.innerHTML = built.html;
+      box.classList.add('show');
+    }
+
+    cardsEl.addEventListener('click', async (event) => {
+      const historyBtn = event.target.closest('[data-toggle-history]');
+      if (historyBtn) {
+        const fileName = historyBtn.getAttribute('data-toggle-history');
+        const historyBox = document.getElementById(`history-${safeId(fileName)}`);
+        const monthBox = document.getElementById(`month-${safeId(fileName)}`);
+        if (monthBox) monthBox.classList.remove('show');
+        if (historyBox && historyBox.classList.contains('show')) {
+          historyBox.classList.remove('show');
+        } else {
+          try {
+            await showHistory(fileName);
+          } catch (e) {
+            if (historyBox) {
+              historyBox.innerHTML = `<div class="empty">Không tải được heartbeat: ${escapeHtml(e.message)}</div>`;
+              historyBox.classList.add('show');
+            }
+          }
+        }
+        return;
+      }
+
+      const monthBtn = event.target.closest('[data-toggle-month]');
+      if (monthBtn) {
+        const fileName = monthBtn.getAttribute('data-toggle-month');
+        const historyBox = document.getElementById(`history-${safeId(fileName)}`);
+        const monthBox = document.getElementById(`month-${safeId(fileName)}`);
+        if (historyBox) historyBox.classList.remove('show');
+        if (monthBox && monthBox.classList.contains('show')) {
+          monthBox.classList.remove('show');
+        } else {
+          try {
+            await showMonth(fileName);
+          } catch (e) {
+            if (monthBox) {
+              monthBox.innerHTML = `<div class="empty">Không tải được lịch tháng: ${escapeHtml(e.message)}</div>`;
+              monthBox.classList.add('show');
+            }
+          }
+        }
+      }
+    });
+
+    function updateLiveText(message, isError = false) {
+      liveText.textContent = message;
+      const badgeDot = liveBadge.querySelector('.dot');
+      if (badgeDot) badgeDot.style.background = isError ? 'var(--red)' : 'var(--green)';
+    }
+
+    function initSSE() {
+      if (realtimeStarted) return;
+      realtimeStarted = true;
+      const es = new EventSource('/events');
+      es.addEventListener('ready', () => updateLiveText('Realtime đang hoạt động'));
+      es.addEventListener('heartbeat', async () => {
+        updateLiveText('Vừa nhận heartbeat mới');
+        await loadOverview();
+      });
+      es.addEventListener('ack', async () => {
+        updateLiveText('Đã nhận cập nhật mới');
+        await loadOverview();
+      });
+      es.onerror = () => {
+        updateLiveText('Mất realtime, đang poll 3 giây', true);
+      };
+
+      if (pollTimer) clearInterval(pollTimer);
+      pollTimer = setInterval(loadOverview, 3000);
+    }
+
+    refreshBtn.addEventListener('click', loadOverview);
+    todayBtn.addEventListener('click', async () => {
+      monthCache.clear();
+      await loadOverview();
+    });
+    searchInput.addEventListener('input', render);
+    sortSelect.addEventListener('change', render);
+
+    loadOverview().then(initSSE).catch((e) => {
+      cardsEl.innerHTML = `<div class="empty">Không tải được dữ liệu: ${escapeHtml(e.message)}</div>`;
+      updateLiveText('Lỗi tải dữ liệu', true);
+      initSSE();
+    });
+  </script>
 </body>
 </html>
